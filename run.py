@@ -5,7 +5,7 @@ import argparse
 from relpose.utils import read_video_np, visualize_T_w2c_rotations, visualize_rotation_angles
 from pathlib import Path
 from relpose.matcher_wrapper import Matcher
-from relpose.solver_two_pairs import TwoPairSolver, CameraParams
+from relpose.solver_two_pairs import TwoPairSolver, CameraParams, interpolate_missing_frames
 
 
 def process_video_T_w2c_list(frames, matcher: Matcher, solver: TwoPairSolver):
@@ -43,13 +43,22 @@ def main():
     print(f"Video path: {args.video}")
 
     frames = read_video_np(args.video, scale=args.downsample)
-    frames = frames[:: args.step]
+
+    # Downsample frames, and interpolate missing frames
+    F_all = frames.shape[0]
+    sample_idxs = np.arange(0, F_all, args.step)
+    if sample_idxs[-1] != F_all - 1:
+        sample_idxs = np.concatenate([sample_idxs, [F_all - 1]])
+    frames = frames[sample_idxs]
     F, H, W, C = frames.shape
-    print(f"Downsampled frames shape: {frames.shape}")
+    print(f"Choosen frames shape: {frames.shape}")
 
     matcher: Matcher = Matcher(args.method)
     solver: TwoPairSolver = TwoPairSolver(CameraParams(W, H))
     T_w2c_list = process_video_T_w2c_list(frames, matcher, solver)
+
+    # Lerp missing frames
+    T_w2c_list = interpolate_missing_frames(T_w2c_list, sample_idxs)
 
     # Visualize the rotation T_w2c_list
     visualize_T_w2c_rotations(T_w2c_list, args.output_dir)
