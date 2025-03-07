@@ -4,21 +4,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from pathlib import Path
+from .viz2d import plot_matches, plot_images, save_plot
 
 # ================================
 # Visualization
 # ================================
 
 
-def visualize_matches(img0, img1, kp0, kp1, matches):
+def visualize_matches(img0, img1, kp0, kp1, output_dir):
     """Visualize the matched features between two images."""
-    match_img = cv2.drawMatches(img0, kp0, img1, kp1, matches, None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-    plt.figure(figsize=(15, 8))
-    plt.imshow(cv2.cvtColor(match_img, cv2.COLOR_BGR2RGB))
-    plt.title("Feature Matches between Frame 0 and Frame 10")
-    plt.tight_layout()
-    plt.savefig("matches.png")
-    plt.show()
+    plot_images([img0, img1], ["Image 0", "Image 1"])
+    plot_matches(kp0, kp1)
+    save_plot(Path(output_dir) / "matches.png")
 
 
 def visualize_rotation_trajectory(trajectory, output_dir):
@@ -223,3 +220,15 @@ def read_video_np(video_path, start_frame=0, end_frame=-1, scale=1.0, threads=0,
             assert len(frames) == end_frame - start_frame
 
     return frames
+
+
+def read_video_frame_np(video_path, frame_index):
+    # Use opencv to read frame at frame_index
+    cap = cv2.VideoCapture(video_path)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+    ret, frame = cap.read()
+    cap.release()
+
+    # Convert to RGB
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    return frame

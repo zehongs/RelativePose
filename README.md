@@ -4,7 +4,7 @@ Given image0 and image1, compute relative transformation T_0to1 that `T_0to1 @ p
 
 ## Method
 
-1. OpenCV ORB as baseline
+1. OpenCV SIFT and ORB as baselines
 2. LightGLUE
 
 
