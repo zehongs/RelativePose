@@ -1,0 +1,3 @@
+opencv-python
+video-reader-rs
+imageio[pyav]
