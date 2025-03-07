@@ -1,10 +1,7 @@
-import cv2
-import numpy as np
-from tqdm import tqdm
 import argparse
 from relpose.utils import read_video_frame_np, visualize_matches
 from pathlib import Path
-from relpose.wrapper import Matcher
+from relpose.matcher_wrapper import Matcher
 
 
 def parse_args():

@@ -18,23 +18,23 @@ def visualize_matches(img0, img1, kp0, kp1, output_dir):
     save_plot(Path(output_dir) / "matches.png")
 
 
-def visualize_rotation_trajectory(trajectory, output_dir):
+def visualize_T_w2c_rotations(T_w2c_list, output_dir):
     """可视化相机旋转轨迹，并考虑 OpenCV 坐标系转换，
     使得相机的 x 轴保持右向，z 轴（光轴）变为水平前向，
     而相机的 y 轴（朝下）对应于 plt 的 -z 轴（即向下）。"""
 
     # 定义转换矩阵：将 OpenCV 坐标 (x:right, y:down, z:forward)
     # 转换为 world 坐标 (x:right, y:forward, z:up)
-    R_align = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
+    R_align = np.array([[0, 0, 1], [-1, 0, 0], [0, -1, 0]])
 
     # 原始光轴：在 OpenCV 中通常为 [0, 0, 1]
     normal_vector = np.array([0, 0, 1])
     aligned_rotated_normals = []
 
     # 对每一帧的旋转矩阵，先计算光轴旋转后的方向，再进行坐标转换
-    for T in trajectory:
+    for T in T_w2c_list:
         R = T[:3, :3]
-        rotated_normal = R @ normal_vector
+        rotated_normal = R.T @ normal_vector
         # 应用对齐变换
         aligned_normal = R_align @ rotated_normal
         aligned_rotated_normals.append(aligned_normal)
@@ -89,11 +89,11 @@ def visualize_rotation_trajectory(trajectory, output_dir):
     ax.set_xlabel("X")
     ax.set_ylabel("Y (Forward)")
     ax.set_zlabel("Z (Up)")
-    ax.set_title("Camera Rotation Trajectory (3D) - Aligned to Camera Conventions")
+    ax.set_title("Camera Rotation T_w2c_list (3D) - Aligned to Camera Conventions")
     ax.legend()
 
     # 添加帧数标记
-    frame_count = len(trajectory)
+    frame_count = len(T_w2c_list)
     interval = max(1, frame_count // 10)
     for i in range(0, frame_count, interval):
         ax.text(
@@ -108,10 +108,10 @@ def visualize_rotation_trajectory(trajectory, output_dir):
     plt.show()
 
 
-def visualize_rotation_angles(trajectory, output_dir):
+def visualize_rotation_angles(T_w2c_list, output_dir):
     """Visualize rotation as Euler angles over time."""
     # Extract rotation matrices
-    rotations = [T[:3, :3] for T in trajectory]
+    rotations = [T[:3, :3] for T in T_w2c_list]
 
     # Convert to Euler angles (in degrees)
     euler_angles = []
@@ -137,7 +137,7 @@ def visualize_rotation_angles(trajectory, output_dir):
 
     # Create plot
     fig, ax = plt.subplots(figsize=(12, 8))
-    frame_indices = np.arange(len(trajectory))
+    frame_indices = np.arange(len(T_w2c_list))
 
     ax.plot(frame_indices, euler_angles[:, 0], "r-", label="Roll")
     ax.plot(frame_indices, euler_angles[:, 1], "g-", label="Pitch")
