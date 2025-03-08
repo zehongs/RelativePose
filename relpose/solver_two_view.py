@@ -54,7 +54,7 @@ class Cv2RansacEssentialSolver:
         return R, t
 
 
-class PycolmapRansacEssentialSolver:
+class PycolmapRansacTwoViewGeometrySolver:
     def __init__(self, camera_params: CameraParams):
         width = camera_params.width
         height = camera_params.height
@@ -110,7 +110,7 @@ class PycolmapRansacEssentialSolver:
 
 two_pair_solver_map = {
     # "cv2": Cv2RansacEssentialSolver,  # This is not stable
-    "pycolmap": PycolmapRansacEssentialSolver,
+    "pycolmap": PycolmapRansacTwoViewGeometrySolver,  # Essential and Homography at the same time
 }
 
 

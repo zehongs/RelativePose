@@ -1,30 +1,7 @@
-import cv2
-import numpy as np
-from tqdm import tqdm
 import argparse
-from relpose.utils import read_video_np, visualize_T_w2c_rotations, visualize_rotation_angles
+from relpose.utils import visualize_T_w2c_rotations, visualize_rotation_angles
 from pathlib import Path
-from relpose.matcher_wrapper import Matcher
-from relpose.solver_two_view import TwoPairSolver, CameraParams, interpolate_missing_frames
-
-
-def process_video_T_w2c_list(frames, matcher: Matcher, solver: TwoPairSolver):
-    T_w2c_list = [np.eye(4)]  # cam poses are defined as T_w2c @ p_w = p_c
-    prev_frame = frames[0]
-    for frame_idx in tqdm(range(1, len(frames))):
-        curr_frame = frames[frame_idx]
-
-        # Match frames
-        pts0, pts1 = matcher.match_np(prev_frame, curr_frame)
-        T_delta = solver.solve(pts0, pts1)  # T_delta = T_curr @ T_last^-1
-
-        # Compute current frame's transformation matrix
-        T_w2c_list.append(T_delta @ T_w2c_list[-1])
-
-        # Current frame becomes previous frame for next iteration
-        prev_frame = curr_frame
-
-    return T_w2c_list
+from relpose.simple_vo import SimpleVO
 
 
 def parse_args():
@@ -42,23 +19,9 @@ def main():
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     print(f"Video path: {args.video}")
 
-    frames = read_video_np(args.video, scale=args.downsample)
-
-    # Downsample frames, and interpolate missing frames
-    F_all = frames.shape[0]
-    sample_idxs = np.arange(0, F_all, args.step)
-    if sample_idxs[-1] != F_all - 1:
-        sample_idxs = np.concatenate([sample_idxs, [F_all - 1]])
-    frames = frames[sample_idxs]
-    F, H, W, C = frames.shape
-    print(f"Choosen frames shape: {frames.shape}")
-
-    matcher: Matcher = Matcher(args.method)
-    solver: TwoPairSolver = TwoPairSolver(CameraParams(W, H))
-    T_w2c_list = process_video_T_w2c_list(frames, matcher, solver)
-
-    # Lerp missing frames
-    T_w2c_list = interpolate_missing_frames(T_w2c_list, sample_idxs)
+    # Run VO
+    vo = SimpleVO(args.video, scale=args.downsample, step=args.step, method=args.method, f_mm=24)
+    T_w2c_list = vo.compute()
 
     # Visualize the rotation T_w2c_list
     visualize_T_w2c_rotations(T_w2c_list, args.output_dir)

@@ -209,3 +209,18 @@ def read_video_frame_np(video_path, frame_index):
     # Convert to RGB
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     return frame
+
+
+# ================================
+# Camera
+# ================================
+
+
+def focal_length_from_mm(width, height, mm=24):
+    """
+    Convert full-frame focal length to image sensor focal length.
+    """
+    diag_fullframe = (24**2 + 36**2) ** 0.5
+    diag_img = (width**2 + height**2) ** 0.5
+    focal_length = diag_img / diag_fullframe * mm
+    return focal_length
