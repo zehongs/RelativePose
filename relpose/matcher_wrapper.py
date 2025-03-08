@@ -1,5 +1,5 @@
-from relpose.model.base_matcher import BaseMatcher
-from relpose.model.cv2_matcher import CV2SIFTMather, CV2ORBMather
+from .model.base_matcher import BaseMatcher
+from .model.cv2_matcher import CV2SIFTMather, CV2ORBMather
 
 
 matcher_map = {

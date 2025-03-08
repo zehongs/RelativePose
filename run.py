@@ -5,7 +5,7 @@ import argparse
 from relpose.utils import read_video_np, visualize_T_w2c_rotations, visualize_rotation_angles
 from pathlib import Path
 from relpose.matcher_wrapper import Matcher
-from relpose.solver_two_pairs import TwoPairSolver, CameraParams, interpolate_missing_frames
+from relpose.solver_two_view import TwoPairSolver, CameraParams, interpolate_missing_frames
 
 
 def process_video_T_w2c_list(frames, matcher: Matcher, solver: TwoPairSolver):
