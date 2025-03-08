@@ -29,9 +29,8 @@ apt install ffmpeg   # ffmpeg is required
 ## Example
 - input video (from EMDB dataset):
 
-    <video width="640" height="360" controls>
-      <source src="https://github.com/zehongs/RelativePose/blob/main/assets/emdb_example.mp4" type="video/mp4">
-    </video>
+https://github.com/user-attachments/assets/c6ee591c-4f57-4423-9a7c-cea60518997f
+
 
 - output:
 
