@@ -1,4 +1,3 @@
-import imageio.v3 as iio
 from video_reader import PyVideoReader
 import numpy as np
 import matplotlib.pyplot as plt
@@ -159,7 +158,8 @@ def visualize_rotation_angles(T_w2c_list, output_dir):
 
 
 def get_video_lwh(video_path):
-    L, H, W, _ = iio.improps(video_path, plugin="pyav").shape
+    vr = PyVideoReader(str(video_path))
+    L, H, W = vr.get_shape()
     return L, W, H
 
 
@@ -170,54 +170,31 @@ def read_video_np(video_path, start_frame=0, end_frame=-1, scale=1.0, threads=0,
     Returns:
         frames: np.array, (N, H, W, 3) RGB, uint8
     """
-    if True:  # pvr: (1) faster (2) safer when using num_workers > 0
-        # https://github.com/gcanat/video_reader-rs/blob/main/README.md
-        # If video path not exists, an error will be raised by pvr
-        options = {"threads": threads}
-        options_decode = {}
-        should_check_length = False
+    # https://github.com/gcanat/video_reader-rs/blob/main/README.md
+    # If video path not exists, an error will be raised
+    options = {"threads": threads}
+    options_decode = {}
+    should_check_length = False
 
-        # Trim
-        if not (start_frame == 0 and end_frame == -1):
-            options_decode["start_frame"] = start_frame
-            options_decode["end_frame"] = end_frame
-            should_check_length = True
+    # Trim
+    if not (start_frame == 0 and end_frame == -1):
+        options_decode["start_frame"] = start_frame
+        options_decode["end_frame"] = end_frame
+        should_check_length = True
 
-        # Scale
-        if scale != 1.0:
-            assert resize_shorter_side is None, "only one option can be set: scale or resize_shorter_side"
-            L, W, H = get_video_lwh(video_path)
-            resize_shorter_side = int(scale * min(H, W))
-            options["resize_shorter_side"] = resize_shorter_side
-        elif resize_shorter_side is not None:
-            options["resize_shorter_side"] = resize_shorter_side
+    # Scale
+    if scale != 1.0:
+        assert resize_shorter_side is None, "only one option can be set: scale or resize_shorter_side"
+        L, W, H = get_video_lwh(video_path)
+        resize_shorter_side = int(scale * min(H, W))
+        options["resize_shorter_side"] = resize_shorter_side
+    elif resize_shorter_side is not None:
+        options["resize_shorter_side"] = resize_shorter_side
 
-        vr = PyVideoReader(str(video_path), **options)
-        frames = vr.decode(**options_decode)
-        if should_check_length:
-            assert len(frames) == end_frame - start_frame
-
-    else:  # imageio + pyav
-        # If video path not exists, an error will be raised by ffmpegs
-        filter_args = []
-        should_check_length = False
-
-        # 1. Trim
-        if not (start_frame == 0 and end_frame == -1):
-            if end_frame == -1:
-                filter_args.append(("trim", f"start_frame={start_frame}"))
-            else:
-                should_check_length = True
-                filter_args.append(("trim", f"start_frame={start_frame}:end_frame={end_frame}"))
-
-        # 2. Scale
-        if scale != 1.0:
-            filter_args.append(("scale", f"iw*{scale}:ih*{scale}"))
-
-        # Excute then check
-        frames = iio.imread(video_path, plugin="pyav", filter_sequence=filter_args)
-        if should_check_length:
-            assert len(frames) == end_frame - start_frame
+    vr = PyVideoReader(str(video_path), **options)
+    frames = vr.decode(**options_decode)
+    if should_check_length:
+        assert len(frames) == end_frame - start_frame
 
     return frames
 
