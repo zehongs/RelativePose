@@ -8,7 +8,7 @@ Given a video, pick images every N frames, do feature matching, and solve camera
 
 Mathcer:
 1. sift: opencv SIFT
-2. cv2: opencv ORB
+2. orb: opencv ORB
 
 Solver:
 1. pycolmap: call `pycolmap.estimate_calibrated_two_view_geometry` (auto select from essential or homography matrix)
