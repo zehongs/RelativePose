@@ -6,7 +6,7 @@ from relpose.simple_vo import SimpleVO
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Camera T_w2c_list estimation from video")
-    parser.add_argument("--video", type=str, default="inputs/0307.mp4", help="Path to input video file")
+    parser.add_argument("--video", type=str, default="assets/emdb_example.mp4", help="Path to input video file")
     parser.add_argument("-m", "--method", type=str, default="sift")
     parser.add_argument("--step", type=int, default=8, help="Process every Nth frame (default: 8)")
     parser.add_argument("-ds", "--downsample", type=float, default=0.5, help="Downsample factor (default: 1)")

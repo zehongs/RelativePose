@@ -4,8 +4,15 @@
 2. `run.py`: Compute camera poses of a given video. Camera poses are defined as T_i @ p_world = p_cam.
 
 ## Method
+Given a video, pick images every N frames, do feature matching, and solve camera poses.
 
-1. OpenCV SIFT and ORB
+Mathcer:
+1. sift: opencv SIFT
+2. cv2: opencv ORB
+
+Solver:
+1. pycolmap: call `pycolmap.estimate_calibrated_two_view_geometry` (auto select from essential or homography matrix)
+2. cv2: ransac to find the best essential matrix
 
 
 ## Installation
@@ -19,3 +26,15 @@ pip install video-reader-rs  # read videos
 apt install ffmpeg   # ffmpeg is required
 ```
 
+## Example
+- input video (from EMDB dataset):
+
+    <video width="640" height="360" controls>
+      <source src="https://github.com/zehongs/RelativePose/blob/main/assets/emdb_example.mp4" type="video/mp4">
+    </video>
+
+- output:
+
+    | Camera Direction Trajectory | Rotation Angles | Matches |
+    | ---------------------------------------------- | --------------- | ------- |
+    | <img src="assets/rotation_trajectory_aligned.png" width="300" /> | <img src="assets/rotation_angles.png" width="300" /> | <img src="assets/matches.png" width="300" /> |

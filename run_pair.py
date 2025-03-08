@@ -6,7 +6,7 @@ from relpose.matcher_wrapper import Matcher
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Draw matches between two frames")
-    parser.add_argument("--video", type=str, default="inputs/0307.mp4", help="Path to input video file")
+    parser.add_argument("--video", type=str, default="assets/emdb_example.mp4", help="Path to input video file")
     parser.add_argument("--index0", type=int, default=0, help="Index of the first frame")
     parser.add_argument("--index1", type=int, default=10, help="Index of the second frame")
     parser.add_argument("-m", "--method", type=str, default="sift")
