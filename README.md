@@ -6,7 +6,7 @@
 ## Method
 Given a video, pick images every N frames, do feature matching, and solve camera poses.
 
-Mathcer:
+Matcher:
 1. sift: opencv SIFT
 2. orb: opencv ORB
 
